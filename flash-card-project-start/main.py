@@ -1,6 +1,17 @@
 from tkinter import *
 from random import randint
 import pandas as pd
+import os
+import sys
+#---------- Helper Function for .exe --#
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 #--------------Algorithm --------------#
 words_to_learn = []
@@ -16,7 +27,7 @@ def right():
     del words_to_learn[current_index]
 
     updated_data = pd.DataFrame(words_to_learn)
-    updated_data.to_csv("data/words_to_learn.csv")
+    updated_data.to_csv(resource_path("data/words_to_learn.csv"), index=False)
 
     flip_front_card()
 
@@ -49,11 +60,13 @@ def start():
     global words_to_learn
     try:
         print("Reading words_to_learn.csv...")
-        df = pd.read_csv("data/words_to_learn.csv")
+        df = pd.read_csv(resource_path("data/words_to_learn.csv"))
     except FileNotFoundError:
         print("File does not exist! Creating file now...")
-        df = pd.read_csv("data/german_words.csv")
-        df.to_csv("data/words_to_learn.csv")
+        # FIX: Use resource_path for reading german_words.csv
+        df = pd.read_csv(resource_path("data/german_words.csv"))
+        # FIX: Use resource_path for saving words_to_learn.csv initially
+        df.to_csv(resource_path("data/words_to_learn.csv"), index=False)
         print("File created!")
         words_to_learn = df.to_dict(orient="records")
     else:
@@ -71,11 +84,11 @@ window.resizable(False, False)
 window.config(padx=50, pady=50, bg=BACKGROUND_COLOR)
 
 # Images
-card_front_img = PhotoImage(file="images/card_front.png")
-card_back_img = PhotoImage(file="images/card_back.png")
-right_img = PhotoImage(file="images/right.png")
-wrong_img = PhotoImage(file="images/wrong.png")
-lingua_icon = PhotoImage(file="images/lingua_icon.png")
+card_front_img = PhotoImage(file=resource_path("images/card_front.png"))
+card_back_img = PhotoImage(file=resource_path("images/card_back.png"))
+right_img = PhotoImage(file=resource_path("images/right.png"))
+wrong_img = PhotoImage(file=resource_path("images/wrong.png"))
+lingua_icon = PhotoImage(file=resource_path("images/lingua_icon.png"))
 
 # Canvas
 canvas = Canvas(width=800, height=526, highlightthickness=0, bg=BACKGROUND_COLOR)
@@ -93,7 +106,7 @@ canvas.grid(row=0, column=0, columnspan=2, sticky=N)
 wrong_btn.grid(row=1, column=0, stick=N)
 right_btn.grid(row=1, column=1, sticky=N)
 
-window.wm_iconphoto(True, lingua_icon)
+window.wm_iconphoto(True, PhotoImage(file=resource_path("images/lingua_icon.png")))
 
 
 if __name__ == "__main__":
