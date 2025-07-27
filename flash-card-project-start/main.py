@@ -3,23 +3,24 @@ from random import randint
 import pandas as pd
 
 #--------------Algorithm --------------#
-guessed_words = []
-df = pd.read_csv("data/german_words.csv")
-german_english_data = df.to_dict(orient="records")
-
+words_to_learn = []
 current_index = -999
-
 def generate_random_index():
     global current_index
-    current_index = randint(0, len(german_english_data) - 1)
-    print((german_english_data[current_index]["German"], german_english_data[current_index]["English"]))
+    current_index = randint(0, len(words_to_learn) - 1)
+    print((words_to_learn[current_index]["German"], words_to_learn[current_index]["English"]))
 
 def right():
-    generate_random_index()
+    global words_to_learn, current_index
+    print(f"Removed Words: {(words_to_learn[current_index]["German"], words_to_learn[current_index]["English"])}")
+    del words_to_learn[current_index]
+
+    updated_data = pd.DataFrame(words_to_learn)
+    updated_data.to_csv("data/words_to_learn.csv")
+
     flip_front_card()
 
 def wrong():
-    generate_random_index()
     flip_front_card()
 
 def flip_back_card():
@@ -27,7 +28,7 @@ def flip_back_card():
     print("Flip Back Card")
     canvas.itemconfig(card, image=card_back_img)
     canvas.itemconfig(title_text, text="English", fill="WHITE")
-    canvas.itemconfig(word_text, text=f"{german_english_data[current_index]["English"]}", fill="WHITE")
+    canvas.itemconfig(word_text, text=f"{words_to_learn[current_index]["English"]}", fill="WHITE")
 
 def flip_front_card():
     global current_index
@@ -35,16 +36,29 @@ def flip_front_card():
     print("Flip Front Card")
     canvas.itemconfig(card, image=card_front_img)
     canvas.itemconfig(title_text, text="German", fill="BLACK")
-    canvas.itemconfig(word_text, text=f"{german_english_data[current_index]["German"]}", fill="BLACK")
+    canvas.itemconfig(word_text, text=f"{words_to_learn[current_index]["German"]}", fill="BLACK")
 
 def countdown():
     generate_random_index()
-    canvas.itemconfig(word_text, text=f"{german_english_data[current_index]["German"]}", fill="BLACK")
+    canvas.itemconfig(word_text, text=f"{words_to_learn[current_index]["German"]}", fill="BLACK")
     window.after(3000, flip_back_card)
 
 def start():
-    countdown()
-    window.mainloop()
+    global words_to_learn
+    try:
+        print("Reading words_to_learn.csv...")
+        df = pd.read_csv("data/words_to_learn.csv")
+    except FileNotFoundError:
+        print("File does not exist! Creating file now...")
+        df = pd.read_csv("data/german_words.csv")
+        df.to_csv("data/words_to_learn.csv")
+        words_to_learn = df.to_dict(orient="records")
+    else:
+        print("File exists!")
+        words_to_learn = df.to_dict(orient="records")
+    finally:
+        countdown()
+        window.mainloop()
 
 # ---------------------- UI SETUP ------------------------#
 BACKGROUND_COLOR = "#B1DDC6"
