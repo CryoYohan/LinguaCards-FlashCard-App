@@ -8,7 +8,7 @@ current_index = -999
 def generate_random_index():
     global current_index
     current_index = randint(0, len(words_to_learn) - 1)
-    print((words_to_learn[current_index]["German"], words_to_learn[current_index]["English"]))
+    print(f"New Random Pair: {words_to_learn[current_index]["German"], words_to_learn[current_index]["English"]}")
 
 def right():
     global words_to_learn, current_index
@@ -21,6 +21,7 @@ def right():
     flip_front_card()
 
 def wrong():
+    print(f"Preserved Words: {(words_to_learn[current_index]["German"], words_to_learn[current_index]["English"])}")
     flip_front_card()
 
 def flip_back_card():
@@ -43,6 +44,7 @@ def countdown():
     canvas.itemconfig(word_text, text=f"{words_to_learn[current_index]["German"]}", fill="BLACK")
     window.after(3000, flip_back_card)
 
+
 def start():
     global words_to_learn
     try:
@@ -52,6 +54,7 @@ def start():
         print("File does not exist! Creating file now...")
         df = pd.read_csv("data/german_words.csv")
         df.to_csv("data/words_to_learn.csv")
+        print("File created!")
         words_to_learn = df.to_dict(orient="records")
     else:
         print("File exists!")
@@ -79,6 +82,7 @@ canvas = Canvas(width=800, height=526, highlightthickness=0, bg=BACKGROUND_COLOR
 card = canvas.create_image(400, 263, image=card_front_img)
 title_text = canvas.create_text(400,150, font=("Arial", 40, "italic"), text="German")
 word_text = canvas.create_text(400,263, font=("Arial", 60, "bold"), text="Word")
+
 
 # Widgets
 wrong_btn = Button(window,image=wrong_img, padx=50, highlightthickness=0, relief="flat", cursor="hand2", bd=0, command=wrong)
